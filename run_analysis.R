@@ -87,4 +87,4 @@ extract_final <- extract_final %>% group_by(subject, activity) # group by subjec
 extract_transform <- extract_final %>% mutate(across(where(is.character), ~ as.numeric(.x))) ## make character columns numeric in order to calc the means
 extract_summary <- extract_transform %>% summarise(across(everything(), mean)) ## create independent tidy data set of the means
 write.csv(extract_summary, "FinalData.csv", row.names=FALSE) ## create a csv of the tidy data set
-
+write.table(extract_summary, file = "FinalData.txt", row.name=FALSE)
