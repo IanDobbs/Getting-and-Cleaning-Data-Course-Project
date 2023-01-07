@@ -16,6 +16,7 @@ unzip("HARdataset.zip")
 
 library(dplyr)
 library(tidyselect)
+library(janitor)
 
 ## read the test data/subjects/activities
 test_subject <- read.table("~/Rstudio_projects/datasciencecoursera/Getting-and-Cleaning-Data-Course-Project/UCI HAR Dataset/test/subject_test.txt") ## subject ids 1-30
@@ -32,7 +33,7 @@ train_subject <- train_subject %>% rename(subject=V1)
 train_labels <- train_labels %>% rename(activity=V1)
 
 ## read the features file that provides the variable names for the data
-features <- read.table("~/RRstudio_projects/datasciencecoursera/Getting-and-Cleaning-Data-Course-Project/UCI HAR Dataset/features.txt")
+features <- read.table("~/Rstudio_projects/datasciencecoursera/Getting-and-Cleaning-Data-Course-Project/UCI HAR Dataset/features.txt")
 features <- features[c(2)] ## subset the descriptions
 features_t <- as.data.frame(t(features)) ## transpose the rows and columns
 features_t <- features_t %>% as.data.frame(row.names = 1:nrow(.)) ## renumber the rows
@@ -40,13 +41,11 @@ features_t <- features_t %>% as.data.frame(row.names = 1:nrow(.)) ## renumber th
 ## bind the test data and features and make the features new variable names
 test_result <- rbind(features_t, test_set)
 test_result <- test_result %>%  row_to_names(row_number = 1)
-clean_names(test_result)
 test_result <- test_result %>% as.data.frame(row.names = 1:nrow(.))
 
 ## bind the train data and features and make the features new variable names
 train_result <- rbind(features_t, train_set)
 train_result <- train_result %>%  row_to_names(row_number = 1) ## convert features row to variable names
-clean_names(train_result)
 train_result <- train_result %>% as.data.frame(row.names = 1:nrow(.)) ## renumber rows
 
 ## merge the test set with subject and activity
@@ -60,8 +59,7 @@ train_result <- cbind(train_subject, train_result)
 ## 1. Merge the training and the test sets to create one data set.
 combined_result <- rbind(test_result, train_result)
 
-## 2. Extract only the measurements on the mean and standard deviation for each measurement.
-
+## 2. Extract only the measurements on the mean and standard deviation for each measurement. Includes ONLY mean() and std() in variable name
 extract1 <- combined_result[,vars_select(names(combined_result), contains("mean()"), .include = "subject")]
 extract2 <- combined_result[,vars_select(names(combined_result), contains("std()"), .include = "activity")]
 
@@ -85,4 +83,6 @@ extract_final["activity"][extract_final["activity"] == 6] <- "laying"
 ## 5. From the data set in step 4, create a second, independent tidy data set with the average of each variable for each activity and each subject.
 extract_final <- extract_final %>% group_by(subject, activity) # group by subject and activity to calc the means
 extract_transform <- extract_final %>% mutate(across(where(is.character), ~ as.numeric(.x))) ## make character columns numeric in order to calc the means
-extract_summary <- extract_transform %>% summarise_each(funs(mean)) ## create independent tidy data set of the means
+extract_summary <- extract_transform %>% summarise(across(everything(), mean)) ## create independent tidy data set of the means
+write.csv(extract_summary, "FinalData.csv", row.names=FALSE) ## create a csv of the tidy data set
+str(extract_summary)
