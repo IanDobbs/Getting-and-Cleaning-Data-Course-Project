@@ -1,3 +1,5 @@
+## Ian Dobbs version 1.0 07/01/2023
+
 ## You should create one R script called run_analysis.R that does the following. 
 
 ## Merges the training and the test sets to create one data set.
@@ -70,12 +72,12 @@ extract_final <- cbind(extract1, extract2)
 extract_final <- relocate(extract_final, activity, .after = subject)
 
 ## 3. Use descriptive activity names to name the activities in the data set
-extract_final["activity"][extract_final["activity"] == 1] <- "walking" ## use the descriptions contained in activity_labels.txt
-extract_final["activity"][extract_final["activity"] == 2] <- "walkingUpStairs"
-extract_final["activity"][extract_final["activity"] == 3] <- "walkingDownStairs"
-extract_final["activity"][extract_final["activity"] == 4] <- "sitting"
-extract_final["activity"][extract_final["activity"] == 5] <- "standing"
-extract_final["activity"][extract_final["activity"] == 6] <- "laying"
+extract_final["activity"][extract_final["activity"] == 1] <- "WALKING" ## use the EXACT descriptions contained in activity_labels.txt
+extract_final["activity"][extract_final["activity"] == 2] <- "WALKING_UPSTAIRS"
+extract_final["activity"][extract_final["activity"] == 3] <- "WALKING_DOWNSTAIRS"
+extract_final["activity"][extract_final["activity"] == 4] <- "SITTING"
+extract_final["activity"][extract_final["activity"] == 5] <- "STANDING"
+extract_final["activity"][extract_final["activity"] == 6] <- "LAYING"
 
 ## 4. Appropriately label the data set with descriptive variable names.
 ## I have merged the actual features list to create the variable names above.
@@ -85,4 +87,4 @@ extract_final <- extract_final %>% group_by(subject, activity) # group by subjec
 extract_transform <- extract_final %>% mutate(across(where(is.character), ~ as.numeric(.x))) ## make character columns numeric in order to calc the means
 extract_summary <- extract_transform %>% summarise(across(everything(), mean)) ## create independent tidy data set of the means
 write.csv(extract_summary, "FinalData.csv", row.names=FALSE) ## create a csv of the tidy data set
-str(extract_summary)
+
